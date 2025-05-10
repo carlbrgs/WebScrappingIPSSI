@@ -1,0 +1,4 @@
+scrapy
+streamlit
+pandas
+scikit-learn
