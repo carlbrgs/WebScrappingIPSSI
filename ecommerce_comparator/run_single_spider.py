@@ -1,20 +1,26 @@
 import sys
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
+
+# Import spiders et scripts
 from spiders.intersport_spider import IntersportSpider
-from spiders.decathlon_spider import DecathlonSpider
+from spiders.playwright_decathlon import scrape_decathlon
+from spiders.playwright_intersport import scrape_intersport
 
 def run_spider(source, search_query):
-    process = CrawlerProcess(get_project_settings())
-
-    if source == "intersport":
-        process.crawl(IntersportSpider, search_query=search_query, use_playwright=True)
-    elif source == "decathlon":
-        process.crawl(DecathlonSpider, search_query=search_query)
+    if source == "decathlon":
+        # Playwright
+        scrape_decathlon(search_query)
+    elif source == "intersport":
+        # Playwright
+        scrape_intersport(search_query)
+    # Optionnel : si un jour tu veux réutiliser Scrapy
+    elif source == "intersport_scrapy":
+        process = CrawlerProcess(get_project_settings())
+        process.crawl(IntersportSpider, search_query=search_query)
+        process.start()
     else:
         raise ValueError("Source inconnue")
-
-    process.start()
 
 if __name__ == "__main__":
     run_spider(sys.argv[1], sys.argv[2])

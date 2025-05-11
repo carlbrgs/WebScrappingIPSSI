@@ -1,3 +1,4 @@
+from unittest import result
 from playwright.sync_api import sync_playwright
 import json
 import os
@@ -34,8 +35,12 @@ def scrape_decathlon(search_query=""):
         print(f"Nombre de produits trouvés : {len(cards)}")
 
         # Ouvrir le fichier JSON en mode append
-        with open("../data/decathlon.json", "a", encoding="utf-8") as f:
-            for card in cards:
+        BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        output_path = os.path.join(BASE_DIR, "data", "decathlon.json")
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            results = []
+            for card in cards[:5]:
                 name_el = card.query_selector("a.product-title h2")
                 link_el = card.query_selector("a.product-title[href]")
                 image_el = card.query_selector("div.vtmn-relative a img[src]")
@@ -98,9 +103,8 @@ def scrape_decathlon(search_query=""):
                     "image_url": image_url,
                     "source": "Decathlon"
                 }
+                results.append(item)
 
-                # Écrire chaque produit dans le fichier JSON
-                f.write(json.dumps(item, ensure_ascii=False, indent=2) + ",\n")
 
                 print(f"✅ {name} - {current_price}€")
                 print(f"🔗 Lien: {link}")
@@ -109,6 +113,14 @@ def scrape_decathlon(search_query=""):
                 print(f"📉 Réduction: {discount}%")
                 print(f"📜 Description: {description}\n")
 
+                
+            # Écrire les résultats dans le fichier JSON
+            try:
+                with open(output_path, "w", encoding="utf-8") as f:
+                    json.dump(results, f, ensure_ascii=False, indent=4)
+                print(f"Produits enregistrés dans {output_path}")
+            except Exception as e:
+                print(f"Erreur lors de l'écriture du fichier JSON : {e}")
         browser.close()
 
     print(f"\n🎯 Produits enregistrés pour '{search_query}'.")
