@@ -8,7 +8,7 @@ from app.utils import scrape_site
 st.set_page_config(layout="wide")
 st.header("🔍 Recherche de produits")
 
-query = st.text_input("Produit à rechercher", "chaussures running")
+query = st.text_input("Produit à rechercher", "")
 sites = st.multiselect("Sites à inclure", ["intersport", "decathlon"], default=["intersport", "decathlon"])
 
 if st.button("Rechercher"):
@@ -20,9 +20,12 @@ if st.button("Rechercher"):
                 item["source"] = site
             all_data.extend(data)
 
-    # 🔍 Filtrage local par nom de produit
-    query_lower = query.lower()
-    filtered_data = [item for item in all_data if query_lower in item["name"].lower()]
+    # 🔍 Filtrage local par mot-clé (au moins un mot doit apparaître dans le nom du produit)
+    keywords = query.lower().split()
+    filtered_data = [
+        item for item in all_data
+        if any(word in item["name"].lower() for word in keywords)
+    ]
 
     if filtered_data:
         df = pd.DataFrame(filtered_data)

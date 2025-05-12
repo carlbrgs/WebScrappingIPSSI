@@ -1,3 +1,4 @@
+from flask.cli import F
 from playwright.sync_api import sync_playwright
 import json
 import os
@@ -44,8 +45,9 @@ def scrape_intersport(search_query=""):
             price_container = product_page.query_selector('p[data-testid="price"]')
             spans = price_container.query_selector_all('span') if price_container else []
             prices = [s.inner_text().strip().replace(",", ".").replace("€", "") for s in spans]
+            print(f"Prix(s) trouvé(s) : {prices}")
 
-            if len(prices) == 2:
+            if len(prices) > 1:
                 current_price = prices[0]
                 original_price = prices[1]
                 discount = round((1 - float(current_price) / float(original_price)) * 100, 2)
